@@ -35,15 +35,20 @@ import (
     "github.com/knq/escpos"
 )
 
-func main() {
-    f, err := os.Open("/dev/usb/lp3")
-    if err != nil {
-        panic(err)
-    }
-    defer f.Close()
+var lpDev = flag.String("p", "/dev/usb/lp0", "Printer dev file")
 
-    w := bufio.NewWriter(f)
-    p := escpos.New(w)
+func main() {
+	  f, err := os.OpenFile(*lpDev, os.O_RDWR, 0)
+	  if err != nil {
+		  log.Fatal(err)
+	  }
+
+	  defer f.Close()
+	  log.Print(*lpDev, " open.")
+
+	  w := bufio.NewReadWriter(f)
+	  p := escpos.New(w)
+
 
     p.Init()
     p.SetSmooth(1)
@@ -88,3 +93,6 @@ func main() {
 - Fix barcode/image support
 - Update code to be idiomatic Go
 - Fix example server implementation
+
+## Credits
+- Repo forked from [kenshaw](https://github.com/kenshaw/escpos) escpos
